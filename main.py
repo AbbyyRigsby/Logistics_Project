@@ -1,15 +1,16 @@
 import pandas as pd
-import geopandas
+import geopandas as gpd
+import momepy
 
 import matplotlib.pyplot as plt
 
-def geoseries_process(csv_file):
+def geodata_process(csv_file, category):
     df = pd.read_csv(csv_file, sep=';')
-    points = geopandas.points_from_xy(df.longitude, df.latitude)
-    gdf = geopandas.GeoSeries(points)
-    
+    gdf = gpd.GeoDataFrame(
+        df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326"
+    )
+    gdf['category'] = category
     return gdf
-
 
 if __name__ == "__main__":
     
@@ -17,12 +18,18 @@ if __name__ == "__main__":
     AIR_DATASET = "UPPLY-AIRPORTS.csv"
 
     # Geoseries processing
-    sea_df = geoseries_process(SEA_DATASET)
-    air_df = geoseries_process(AIR_DATASET)
+    sea_port = geodata_process(SEA_DATASET, "Sea")
+    air_port = geodata_process(AIR_DATASET, "Air")
 
-    fig, ax = plt.subplots()
-    sea_df.plot(ax=ax, color='blue', markersize=2)
-    air_df.plot(ax=ax, color='red', markersize=2)
-    ax.set_title("Port GeoData")
-    #plt.show()
+    complete_dataset = pd.concat([sea_port, air_port], ignore_index=True)
 
+    # print(complete_dataset.head())
+    # print(complete_dataset.columns)
+    # print(complete_dataset.shape)
+
+    start_point = input("Please input start port name: ")
+    end_point = input("Please input destination port name: ")
+
+    
+
+    
